@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   },
   description:
     "Report a local issue, find Hartford city services, and follow a test report. City-proposal demonstration; not an official city service.",
-  icons: { icon: "/icon.svg" },
+  icons: { icon: `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/icon.svg` },
   robots: { index: false, follow: false },
 };
 export default function RootLayout({

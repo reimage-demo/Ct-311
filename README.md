@@ -2,6 +2,12 @@
 
 A bilingual public website and private staff workspace built with Next.js 16, TypeScript, Convex, Clerk, Leaflet/Geoapify, and Cloudflare Turnstile. This is **not an official Hartford service**. It does not submit records to Accela or send email/SMS.
 
+**Public preview:** https://reimage-demo.github.io/Ct-311/ · **Staff setup:** https://reimage-demo.github.io/Ct-311/admin/
+
+GitHub Pages serves a credential-free static preview from the `gh-pages` branch. The public pages, bilingual service directory and five-step form work for review; submission, lookup and staff authentication remain unavailable. Server endpoints and private report-detail routes are excluded from that artifact. The full backend remains in `main` for later deployment.
+
+To rebuild the preview, run `npm run build:pages` and publish the contents of `.pages-build/out` (including `.nojekyll`) to `gh-pages`. `PAGES_BASE_PATH` defaults to `/Ct-311`. This isolated build does not modify the full server application or include environment files. GitHub Pages does not apply the server application's security headers.
+
 ## Start locally
 
 Requires Node 20.19+ (Node 22 LTS recommended).
@@ -44,4 +50,4 @@ Convex's installed code generator produced the local schema/server bindings. `np
 
 Public copy and the full 43-service bilingual catalog live in `lib/services.ts`. Shared validators, status labels, transition rules, and public projection live in `lib/domain.ts`. Convex enforces authorization independently of the Next.js UI.
 
-Nothing is deployed or connected to a city system. Removing the demonstration notices is not sufficient to launch an official service; city integration, identity, retention, operational ownership, and incident response must first be agreed.
+Only the static preview is deployed; nothing is connected to a city system. Removing the demonstration notices is not sufficient to launch an official service; city integration, identity, retention, operational ownership, and incident response must first be agreed.
