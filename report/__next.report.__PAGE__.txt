@@ -1,0 +1,27 @@
+1:"$Sreact.fragment"
+2:"$Sreact.suspense"
+3:I[25048,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js","/Ct-311/_next/static/chunks/0jqgl3_k8t1jc.js","/Ct-311/_next/static/chunks/2_vvaryhsynn2.js"],"ReportForm"]
+4:I[97367,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"OutletBoundary"]
+8:I[97367,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"ViewportBoundary"]
+9:I[97367,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"MetadataBoundary"]
+a:I[27201,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"IconMark"]
+c:I[39756,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"default"]
+d:I[37457,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"default"]
+10:I[2877,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"LanguageProvider"]
+11:I[84431,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],"Shell"]
+12:I[79365,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js","/Ct-311/_next/static/chunks/2nzemsha-3hve.js"],"default"]
+13:I[22016,["/Ct-311/_next/static/chunks/0q33dl-olc-qs.js"],""]
+:HL["/Ct-311/_next/static/chunks/12dyiy2s-k5kz.css","style"]
+7:X
+f:X
+f:C
+0:{"buildId":"CoZTmfejYgSRMM7izK8hA","data":[{"rsc":["$","$1","c",{"children":[["$","$2",null,{"fallback":["$","div",null,{"className":"container loading","children":"Loading form / Cargando formulario…"}],"children":["$","$L3",null,{}]}],[["$","script","script-0",{"src":"/Ct-311/_next/static/chunks/0jqgl3_k8t1jc.js","async":true}],["$","script","script-1",{"src":"/Ct-311/_next/static/chunks/2_vvaryhsynn2.js","async":true}]],["$","$L4",null,{"children":["$","$2",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":"$@6","staleTime":"$7","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$L8",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$L9",null,{"children":["$","$2",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Hartford 311 | Service portal demonstration"}],["$","meta","1",{"name":"description","content":"Report a local issue, find Hartford city services, and follow a test report. City-proposal demonstration; not an official city service."}],["$","meta","2",{"name":"robots","content":"noindex, nofollow"}],["$","link","3",{"rel":"icon","href":"/Ct-311/icon.svg"}],["$","$La","4",{}]]}]}]}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],"isPartial":"$@b","staleTime":"$7","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lc",null,{"parallelRouterKey":"children","template":["$","$Ld",null,{}]}]]}],"isPartial":"$@e","staleTime":"$7","varyParams":"$f"},{"rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/Ct-311/_next/static/chunks/12dyiy2s-k5kz.css","precedence":"next"}],["$","script","script-0",{"src":"/Ct-311/_next/static/chunks/0q33dl-olc-qs.js","async":true}]],["$","html",null,{"lang":"en","data-scroll-behavior":"smooth","children":["$","body",null,{"children":["$","$L10",null,{"children":["$","$L11",null,{"children":["$","$Lc",null,{"parallelRouterKey":"children","error":"$12","errorStyles":[],"errorScripts":[["$","script","script-0",{"src":"/Ct-311/_next/static/chunks/2nzemsha-3hve.js","async":true}]],"template":["$","$Ld",null,{}],"notFound":[["$","div",null,{"className":"container page-body","children":[["$","div",null,{"className":"page-heading","children":[["$","h1",null,{"children":"Page not found / Página no encontrada"}],["$","p",null,{"children":"We could not find this page. / No se encontró esta página."}]]}],["$","$L13",null,{"className":"button","href":"/","children":"Home / Inicio"}]]}],[]]}]}]}]}]}]]}],"isPartial":"$@14","staleTime":"$7","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@15","rootVaryParams":null,"needsRuntimeRequest":"$@16"}
+5:null
+7:300
+16:true
+7:C
+15:0
+b:"$undefined"
+e:"$undefined"
+14:"$undefined"
+6:"$undefined"
