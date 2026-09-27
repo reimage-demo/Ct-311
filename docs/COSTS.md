@@ -1,43 +1,27 @@
-# Service accounts and monthly pricing
+# Consolidated service costs
 
-Budget prepared September 26, 2026 in USD, before taxes. Published list prices are estimates, not a capacity guarantee or a vendor quote. No paid services have been purchased.
+Updated September 27, 2026. The application now uses **Cloudflare plus Geoapify**. The previous Convex, Clerk and Vercel subscriptions are no longer required. Cloudflare has multiple metered products under one account; fewer vendors does not mean zero usage charges.
 
-## Required services
+| Cloudflare product | Why it is used | Pricing basis |
+| --- | --- | --- |
+| Workers + static assets | Public/admin hosting and same-origin backend | Paid plan starts at $5/month; request/CPU overages apply |
+| D1 | Reports, separate contacts, staff membership, audit and search | Included paid-plan allowances; then rows read/written and storage |
+| R2 Standard | Private re-encoded photos | 10 GB-month included; then $0.015/GB-month, plus operations over allowances |
+| Access | Staff identity gate and MFA policy | Budget the eligible free tier for the 25-person demo; confirm current account/user limits and municipal requirements before contracting |
+| Turnstile | Bot verification | Free tier |
+| Durable Objects | Strongly consistent, distributed rate limits | Metered requests/duration/storage, with paid-plan allowances; budget usage rather than assuming free |
+| Images transformations | Decode/resize images, strip metadata, store safe WebP output | First 5,000 unique transformations included; paid transformations beyond that $0.50/1,000 |
 
-| Service | Purpose in this app | Starting paid plan/month | With 50% markup |
-| --- | --- | ---: | ---: |
-| Convex Professional | Report/contact database, private photo storage, server functions, live staff updates and daily backups | $25 for one developer | $37.50 |
-| Clerk Pro | Invited staff sign-in, sessions and MFA | $25, billed monthly | $37.50 |
-| Geoapify API 10 | Address autocomplete, reverse geocoding and map tiles for the movable pin | $59 | $88.50 |
-| Cloudflare Turnstile Free | Server-verified bot challenges on intake and lookup | $0 | $0 |
-| Vercel Pro | Hosts both public pages and /admin, CDN, HTTPS and the Next.js server endpoints | $20 starting plan | $30 |
-| **Total** | **Excludes usage overages and labor** | **$129** | **$193.50** |
+Sources: [Workers](https://developers.cloudflare.com/workers/platform/pricing/), [D1](https://developers.cloudflare.com/d1/platform/pricing/), [R2](https://developers.cloudflare.com/r2/pricing/), [Access](https://www.cloudflare.com/plans/zero-trust-services/), [Turnstile](https://developers.cloudflare.com/turnstile/plans/), [Durable Objects](https://developers.cloudflare.com/durable-objects/platform/pricing/), [Images](https://developers.cloudflare.com/images/pricing/).
 
-Sources: [Convex](https://www.convex.dev/pricing), [Clerk](https://clerk.com/pricing), [Clerk monthly-billing explanation](https://clerk.com/articles/clerk-pricing-explained), [Geoapify](https://www.geoapify.com/pricing/), [Turnstile](https://developers.cloudflare.com/turnstile/plans/), [Vercel](https://vercel.com/pricing).
+Images is used once on upload; photos are stored in R2, not in the hosted Images storage product. It is necessary because native Sharp does not run as this Worker's image processor. The free transformation tier can refuse new transformations once its allowance is exhausted; enable an appropriate paid usage plan before a real pilot.
 
-Convex developer seats mean people managing the backend deployment, not the 25 municipal staff using this application. Clerk users here are staff only; residents do not create accounts. Application roles and memberships are stored in Convex, so the Clerk enhanced B2B Organizations add-on is unnecessary. Use authenticator-app MFA to avoid SMS authentication charges. Additional provider-dashboard seats, deployments or projects can change the bill; do not assume allowances are exclusive to this app if sharing an agency account.
+Geoapify still supplies address autocomplete, reverse geocoding and map tiles. The [API 10 plan](https://www.geoapify.com/pricing/) starts at $59/month for 10,000 credits/day and up to 12 requests/second. Free usage may suffice for early demonstrations, but high concurrency can require a higher rate/credit tier. It is the only separate application API vendor. An existing organizational identity provider can be connected to Access; its licensing, if any, is outside this estimate.
 
-Geoapify API 10 includes 10,000 credits/day and up to 12 requests/second. Its free plan can support early testing, but is not the basis of this operating budget. One map tile costs 0.25 credits, and an autocomplete/reverse-geocoding call costs one credit. Illustratively, 50 tiles + six address calls + one reverse lookup = 19.5 credits per map session. At 500 such sessions/day that is 9,750 credits before staff map use, retries and abandoned forms. Bursts may require a higher request-per-second allowance even when the daily quota is sufficient. See [Geoapify credit definitions](https://www.geoapify.com/pricing-details/).
+**Starting subscription floor: $5 + $59 = $64/month**, or **$96 with a 50% markup**, assuming eligible free/included allowances elsewhere. This is not an all-inclusive bill: add actual Cloudflare usage, storage growth, transformation overages, map upgrades, taxes, domain renewal, backup copies and any paid Access/WAF requirements. No hosted traffic test has established a steady-state monthly bill.
 
-## What to charge
+For quoting, use **actual attributable vendor cost × 1.50**. A provisional **$150/month infrastructure allowance** covers $100/month of vendor cost with that markup; charge costs above $100 at 1.50× under an agreed usage/upgrade policy. Reconcile against the first month's measurements. For larger or official deployment, price from measured volume and required support/SLA rather than the subscription floor.
 
-The strict API/hosting formula is **actual attributable vendor cost × 1.50**. At the starting plan total, that is **$193.50/month**. A 50% markup is a 33.3% gross margin, not a 50% gross margin.
+Maintenance labor remains separate. For example, three hours at an assumed internal $100/hour cost with 50% markup is $450; adding the $150 infrastructure allowance gives a provisional $600/month package. This is an illustrative cost model, not a claim about Reimage's actual costs or a city service-level commitment.
 
-For an initial pilot, propose **$300/month infrastructure allowance**, covering up to $200/month of vendor costs with the requested markup. The $71 above the $129 base is a contingency allowance, not a measured usage prediction. Charge additional attributable vendor spend above $200 at 1.50×, with agreed alerts and an approval threshold for plan upgrades. Reconcile actual usage monthly; do not promise unlimited traffic at a fixed price.
-
-If ongoing maintenance is included, price labor explicitly. Example proposal: **$750/month total**, comprising the $300 infrastructure allowance and $450 for up to three maintenance hours. The labor calculation assumes an internal cost of $100/hour: 3 × $100 × 1.50 = $450. Replace that assumption with Reimage's actual cost and required service level. Those hours can cover dependency updates, error/usage review, backup checks and minor fixes. New features, city integrations and 24/7 response require separate scope.
-
-The original targets (1,000 concurrent visitors, 100 reports/minute, 25 staff) describe peaks, not monthly volume. At 100 reports/minute continuously for 30 days, volume would be 4.32 million reports. That is a different budget. Load testing, monthly report/page counts, photo sizes, retention and provider limits must determine the production quote. Photos remain stored, so storage costs accumulate over time. Convex and Vercel compute/network overages and Geoapify tier upgrades are variable costs. Any municipal SLA, procurement or enterprise-security requirements may require materially higher/custom plans.
-
-Domain registration/renewal, taxes, optional external monitoring, paid WAF features and external backup copies are excluded from these amounts. GitHub stores the source; it does not run this Next.js/Convex application. No Google Maps, Mapbox, Twilio, SendGrid, paid translation or AI API is needed. Leaflet and Sharp are libraries; browser geolocation has no separate API subscription. Photos use Convex rather than a separate image-hosting account.
-
-## Credentials to configure
-
-- Convex: deployment URL and HTTP-actions URL; a deployment credential for later hosting automation.
-- Clerk: publishable key, secret key and JWT issuer; configure the Convex JWT template, restricted signup and required MFA.
-- Geoapify: server key for geocoding, separate restricted public tile key.
-- Turnstile: public widget site key and private verification secret.
-- Vercel: a hosting project connected to the GitHub repository, with the server and public environment settings.
-- Application-generated secrets: `GATEWAY_SECRET` and `IP_HASH_SECRET`; these are not additional paid APIs.
-
-See [.env.example](../.env.example) and [SETUP.md](SETUP.md). Keep secrets out of GitHub and configure distinct development and hosted environments.
+The 1,000-visitor/100-reports-per-minute targets are peaks. Continuous 100 reports/minute would mean 4.32 million reports in 30 days and needs a very different budget. Do not promise unlimited volume. No AI, translation, SMS, constituent-email or separate photo-hosting API is required.

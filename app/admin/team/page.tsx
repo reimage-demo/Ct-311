@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import type { Doc } from "@/convex/_generated/dataModel";
+import { useMutation, useQuery } from "@/lib/staff-client";
+import { api } from "@/lib/staff-client";
+import type { Doc } from "@/lib/models";
 import { errorMessage } from "@/lib/client";
 export default function Team() {
   const me = useQuery(api.staff.me),
@@ -30,9 +30,9 @@ export default function Team() {
       <section>
         <h2>Staff access</h2>
         <p className="small muted">
-          Invite a person through Clerk first. Then grant portal access using
-          their Clerk user ID. Disabling a membership blocks every subsequent
-          database and photo request.
+          Allow the person in Cloudflare Access first. Then grant portal access
+          using their verified Access subject ID. Disabling a membership blocks
+          every subsequent database and photo request.
         </p>
         <div className="table-wrap">
           <table>
@@ -68,7 +68,14 @@ export default function Team() {
             e.preventDefault();
             setBusy(true);
             try {
-              await save({ id: selected?._id, subject, name, role, active });
+              await save({
+                id: selected?._id,
+                version: selected?.version,
+                subject,
+                name,
+                role,
+                active,
+              });
               setMessage("Membership saved.");
               setSelected(null);
               setSubject("");
@@ -94,13 +101,14 @@ export default function Team() {
             />
           </div>
           <div className="field">
-            <label htmlFor="subject">Clerk user ID</label>
+            <label htmlFor="subject">Access subject ID</label>
             <input
               id="subject"
               required
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              placeholder="user_…"
+              placeholder="Access user UUID"
+              disabled={!!selected}
             />
           </div>
           <div className="field">

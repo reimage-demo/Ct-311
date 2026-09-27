@@ -308,7 +308,7 @@ export function ReportForm() {
         ),
       );
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", process.env.NEXT_PUBLIC_CONVEX_SITE_URL + "/upload");
+      xhr.open("POST", "/api/upload");
       xhr.setRequestHeader("Authorization", "Bearer " + token.current);
       xhr.setRequestHeader("X-Upload-Slot", p.slot);
       xhr.setRequestHeader("X-File-Name", encodeURIComponent(p.file.name));

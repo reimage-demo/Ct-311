@@ -1,64 +1,103 @@
-# Connect an isolated demonstration
+# Cloudflare setup
 
-The local build is complete without external accounts. The following configuration enables actual persistence, image processing, mapping, and staff access. Do not reuse Car Craft or Empire customer databases or credentials.
+Use a dedicated demo account/environment and synthetic data. No Cloudflare resources were created remotely during the rewrite. Existing GitHub Pages hosting remains a nonfunctional preview of backend features.
 
-## 1. Convex
+## 1. Runtime and resources
 
-1. Create a dedicated development project using `npx convex dev`. Select the new Hartford demo project, not an existing client project. The CLI writes the deployment selection into `.env.local` and generates bindings.
-2. Set `NEXT_PUBLIC_CONVEX_URL` to the project's `https://….convex.cloud` URL and `NEXT_PUBLIC_CONVEX_SITE_URL` to its corresponding `https://….convex.site` HTTP-actions URL.
-3. Keep development and future hosted-demo deployments separate. `convex.json` externalizes Sharp so its native image-processing dependency runs in Convex Node actions.
-4. Copy `.env.example` to `.env.local` before filling credentials if the CLI has not already created it. Never overwrite a CLI-generated deployment selection.
+Use Node >=22. Install dependencies with `npm ci`. Authenticate using `npx wrangler login` in your own browser. Use least-privilege Cloudflare deployment credentials for CI; never expose them in a frontend environment or commit them.
 
-Generate two separate random 32-byte values locally for `GATEWAY_SECRET` and `IP_HASH_SECRET` using a password manager. Put both in `.env.local`; put **only GATEWAY_SECRET** in Convex. Do not share them through chat or check them in.
-
-## 2. Clerk staff authentication
-
-1. Create a dedicated Clerk application; enable invitation-only/restricted signup. Disable public sign-up. Invite the first administrator through Clerk.
-2. Enable **Require multi-factor authentication**. Finish MFA enrollment before opening the portal. Do not enable an alternate sign-in flow that skips required session tasks.
-3. Enable Clerk's Convex integration/JWT template with audience `convex`. Set `CLERK_JWT_ISSUER_DOMAIN` in Convex to the Clerk Frontend API origin.
-4. Set `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY`, and `NEXT_PUBLIC_CLERK_FRONTEND_API_ORIGIN` in Next.js. The last value is an origin only, such as `https://example.clerk.accounts.dev`; it is included in the content security policy. Add the production custom Clerk origin before hosting.
-5. Copy the invited administrator's Clerk `user_…` subject into Convex's `BOOTSTRAP_ADMIN_SUBJECT`. Run `npx convex run staff:bootstrap '{}'` once. Remove the bootstrap environment variable immediately afterward. This operation is internal and refuses to run after any staff member exists.
-6. Open `/admin`. The account must both authenticate with Clerk **and** have active membership in Convex. Merely knowing the sign-in link or having a Clerk account grants no data access.
-
-Membership administration grants application access; invitations themselves are issued in the Clerk dashboard. This keeps email delivery outside this website-only demo.
-
-## 3. Turnstile and application origin
-
-Create a Cloudflare Turnstile widget restricted to your demo hostname. Set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in Next.js and `TURNSTILE_SECRET_KEY` in Convex.
-
-Set **the same** `APP_ORIGIN` in Next.js and Convex, without a trailing slash. For this local preview use `http://127.0.0.1:3000` and allow that development hostname in the widget configuration. Alternatively use `http://localhost:3000` consistently in the browser and both environments. CORS intentionally rejects mixed origins.
-
-The server verifies the Turnstile response's success, hostname, and action (`start` or `lookup`). There is no environment flag that disables verification. Only use a vendor test widget with synthetic records; validate its returned hostname/action against this strict check before relying on it for staging automation.
-
-## 4. Geoapify
-
-Create separate API keys:
-
-- `GEOAPIFY_API_KEY` in Convex for server-side autocomplete and reverse geocoding.
-- `NEXT_PUBLIC_GEOAPIFY_MAP_KEY` in Next.js for public map tiles, with allowed-origin/referrer restrictions and a usage cap in Geoapify.
-
-Keep attribution visible. Configure provider quotas and budget alerts; the app also limits geocoding per submission session. Address results are restricted to a Hartford-area bounding rectangle. This is **not a city-boundary or road-ownership determination**; staff must verify every location before work is assigned. Manual entries intentionally remain possible during map outages.
-
-## 5. Verify configuration
-
-Convex environment variables: `APP_ORIGIN`, `GATEWAY_SECRET`, `CLERK_JWT_ISSUER_DOMAIN`, `TURNSTILE_SECRET_KEY`, `GEOAPIFY_API_KEY`. Use the dashboard or `npx convex env set NAME VALUE` in a trusted terminal; prefer the dashboard to avoid secret-bearing shell history.
-
-Restart `npm run dev` after editing local environment variables. Next.js inlines public settings at build time; rebuild when public settings change.
-
-Submit one synthetic report with a photo; save its receipt; sign in and update the report; check the public status. Test a second staff account, revoke it, and verify that subsequent report and photo requests fail. Test a signed-in account without membership. Confirm MFA cannot be skipped.
-
-## 6. Synthetic examples
-
-Set `DEMO_SEED_ENABLED=true` in the isolated Convex development project. With the correct deployment selected:
+Create the resources:
 
 ```sh
-CONFIRM_DEMO_SEED=yes node scripts/seed.mjs 12
+npx wrangler d1 create hartford-311
+npx wrangler r2 bucket create hartford-311-private-photos
 ```
 
-The seed is internal, creates clearly labeled synthetic records, and is disabled by default. Disable it after use. For the capacity exercise use 100000 in place of 12. It inserts in batches of 100, so expect 1,000 batches and billable resource use. It does not erase existing records. Re-running creates additional reports; use a fresh isolated deployment when an exact starting count matters.
+Replace the placeholder `database_id` in `wrangler.jsonc` with the created D1 UUID. Keep the R2 bucket private: **do not enable r2.dev, a public custom domain, or anonymous access**. Enable Cloudflare Images transformations for the IMAGES binding. Images is an additional Cloudflare product/usage charge, not a separate vendor; it replaces native Sharp in the deployed Worker.
 
-## 7. Optional later Vercel hosting
+Durable Objects are configured with SQLite storage and created by the deployment migration. Their only purpose is distributed rate limiting; the namespace has no public URL.
 
-No deployment was requested after the decision to finish locally. When ready, create a dedicated Vercel project, use the checked-in `vercel.json`, set the Next.js environment variables, configure the matching hosted Convex deployment, and rebuild. Use a stable preview hostname; dynamic preview hosts will not pass the origin/Turnstile restrictions without configuration.
+Apply D1 migrations:
 
-Enable Vercel's WAF/rate limiting for `/api/public/*` and staff sign-in before public sharing. Raw photo uploads go to Convex HTTP actions and do not pass through Vercel's body-size limit. Keep gateway secrets out of preview logs and browser bundles. Use Vercel-generated `x-vercel-forwarded-for`, not a client-supplied forwarded-IP header. A different hosting platform requires an equivalent trusted-proxy IP configuration; the local fallback deliberately uses one shared development bucket.
+```sh
+npm run db:migrate:local
+npm run db:migrate:remote
+```
+
+The remote command is for the isolated deployment you selected. Use distinct database/bucket/Worker names for staging and any future official service. Do not reuse the demo's data or secrets for production.
+
+## 2. One application origin
+
+Choose a hostname on a Cloudflare-managed domain, such as `311-demo.example.com`. Add its Worker custom-domain route to `wrangler.jsonc`:
+
+```json
+"routes": [{"pattern":"311-demo.example.com","custom_domain":true}]
+```
+
+Set `APP_ORIGIN` to exactly `https://311-demo.example.com`, without a trailing slash. Both the public pages and APIs run on this origin. CORS does not permit cross-origin writes, so the GitHub Pages preview cannot submit into the backend. `workers_dev` and deployment-preview URLs are disabled to eliminate alternate ingress paths. Do not enable an unprotected alternate route.
+
+## 3. Access and MFA
+
+In Cloudflare Zero Trust, create a self-hosted Access application covering ALL of these paths on the chosen hostname, using the same application audience:
+
+- `/admin` and `/admin/*`
+- `/api/staff/*`
+- `/api/photo/*`
+
+Use explicit invited-user/email/group allowlists. Require MFA through your organizational identity provider or Access independent MFA. Do not use an Everyone allow rule, bypass policy, or service-token authentication for these staff endpoints. An email one-time PIN by itself does not meet the MFA requirement. Confirm the MFA challenge cannot be skipped with a fresh browser session.
+
+Set `ACCESS_TEAM_DOMAIN` to the exact `https://your-team.cloudflareaccess.com` issuer and `ACCESS_AUD` to this Access application's audience. The Worker verifies RS256 signature, issuer, audience, expiry, issued-at presence, subject, application-token type and email claim. It then checks active D1 membership on every request. Never trust an email header alone. MFA policy enforcement is an Access configuration requirement; the Worker cannot configure or certify that account setting.
+
+## 4. Bootstrap the first administrator
+
+After the invited administrator authenticates through Access, obtain their verified Access subject ID from the administrator-controlled Access user/session information. Do not substitute an unverified browser-provided email or subject.
+
+```sh
+node scripts/bootstrap-admin.mjs VERIFIED_ACCESS_SUBJECT
+```
+
+Review the generated `load/results/bootstrap.sql`. Apply it with `npx wrangler d1 execute hartford-311 --remote --file=load/results/bootstrap.sql`. It inserts only when there are no staff memberships and creates an audit event via the database trigger. This is an operator-only SQL procedure; there is no remotely callable bootstrap endpoint. Add other members through `/admin/team` after allowing them in Access.
+
+Membership subjects are immutable. To change an identity, disable the old member and add a new one. A staff edit includes its expected version; refresh after a conflict. Admins cannot disable/demote/rebind themselves. Access dashboard users and application staff memberships are different concepts.
+
+## 5. Secrets, maps and bot verification
+
+Set Worker secrets through Wrangler's interactive prompts:
+
+```sh
+npx wrangler secret put IP_HASH_SECRET
+npx wrangler secret put TURNSTILE_SECRET_KEY
+npx wrangler secret put GEOAPIFY_API_KEY
+```
+
+Generate `IP_HASH_SECRET` as at least 32 random bytes in a password manager. It hashes Cloudflare's trusted connection IP without storing the raw address. No cross-service gateway secret is needed.
+
+Create a Turnstile widget restricted to the demo hostname. The Worker verifies its hostname and `start`/`lookup` action. There is no production bypass flag. Create a server Geoapify key and a separate public map-tile key restricted to the deployment origin with a usage budget. Referrer headers send the origin to the map provider; required attribution remains visible.
+
+For the Cloudflare frontend build set:
+
+```dotenv
+NEXT_PUBLIC_BACKEND_ENABLED=true
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your_public_widget_key
+NEXT_PUBLIC_GEOAPIFY_MAP_KEY=your_restricted_public_tile_key
+```
+
+These are public build values, not secrets. Keep the backend flag false for the GitHub Pages preview. Worker secrets are runtime bindings and are never bundled into the frontend. Local `.dev.vars` is ignored by Git; `.dev.vars.example` contains blanks only.
+
+## 6. Build, verify and deploy
+
+```sh
+npm run typecheck
+npm test
+npm run build
+npm run worker:check
+npx wrangler deploy
+```
+
+Do not deploy an export built with the wrong hostname keys or base path. The Cloudflare build uses `/`; the Pages build is separately staged under `/Ct-311`.
+
+Before opening the pilot: test real public submission with a photo, retry without duplication, receipt lookup, staff login/MFA, assignment, reopening, revoked membership, direct photo requests without cookies, mismatched origins, alternate hostnames and the maximum file size. Test with two staff accounts editing the same report. Confirm the custom domain's Access policy covers backend routes as well as the page. Confirm R2 public access remains off and Turnstile rejects another hostname.
+
+## 7. Migration boundary
+
+No existing live Convex database was configured, so this is a code/schema migration, not a production data transfer. The previous implementation remains in Git history. If real records exist elsewhere, a separate verified data migration is required; these scripts do not copy or erase them.

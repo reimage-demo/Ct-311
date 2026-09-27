@@ -1,11 +1,8 @@
 "use client";
-import { ClerkProvider, SignIn, UserButton, useAuth } from "@clerk/nextjs";
-import { ConvexReactClient, useConvexAuth, useQuery } from "convex/react";
-import { ConvexProviderWithClerk } from "convex/react-clerk";
-import { useState, Component, type ReactNode } from "react";
+import { Component, type ReactNode } from "react";
 import Link from "next/link";
 import { StaffSetup } from "./staff-setup";
-import { api } from "@/convex/_generated/api";
+import { api, useQuery } from "@/lib/staff-client";
 class StaffErrorBoundary extends Component<
   { children: ReactNode },
   { error: boolean }
@@ -17,84 +14,34 @@ class StaffErrorBoundary extends Component<
   render() {
     if (this.state.error)
       return (
-        <div className="notice error" role="alert">
-          <h2>Access interrupted</h2>
-          <p>
-            Your session or staff access may have changed. Sign in again or
-            contact your administrator.
-          </p>
-          <button
-            className="button secondary"
-            onClick={() => location.reload()}
-          >
-            Reload portal
-          </button>
-        </div>
+        <section className="container page-body">
+          <div className="notice error" role="alert">
+            <h1>Staff access interrupted</h1>
+            <p>
+              Your session, membership, or connection has changed. Sign in again
+              or contact your administrator.
+            </p>
+            <a className="button" href="/cdn-cgi/access/logout">
+              Sign out and reconnect
+            </a>
+          </div>
+        </section>
       );
     return this.props.children;
   }
 }
-export function StaffProvider({
-  children,
-  serverConfigured,
-}: {
-  children: ReactNode;
-  serverConfigured: boolean;
-}) {
-  const url = process.env.NEXT_PUBLIC_CONVEX_URL,
-    key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-  if (!url || !key || !serverConfigured) return <StaffSetup />;
+export function StaffProvider({ children }: { children: ReactNode }) {
+  if (process.env.NEXT_PUBLIC_BACKEND_ENABLED !== "true") return <StaffSetup />;
   return (
-    <ClerkProvider publishableKey={key}>
-      <Connected url={url}>
-        <StaffErrorBoundary>
-          <Gate>{children}</Gate>
-        </StaffErrorBoundary>
-      </Connected>
-    </ClerkProvider>
+    <StaffErrorBoundary>
+      <Membership>{children}</Membership>
+    </StaffErrorBoundary>
   );
-}
-function Connected({ url, children }: { url: string; children: ReactNode }) {
-  const [client] = useState(() => new ConvexReactClient(url));
-  return (
-    <ConvexProviderWithClerk client={client} useAuth={useAuth}>
-      {children}
-    </ConvexProviderWithClerk>
-  );
-}
-function Gate({ children }: { children: ReactNode }) {
-  const { isLoading, isAuthenticated } = useConvexAuth();
-  if (isLoading)
-    return <div className="container loading">Checking staff access…</div>;
-  if (!isAuthenticated)
-    return (
-      <div className="container page-body">
-        <div className="page-heading">
-          <h1>Staff sign in</h1>
-          <p>Invited staff only. Multi-factor authentication is required.</p>
-        </div>
-        <SignIn routing="hash" forceRedirectUrl="/admin" />
-      </div>
-    );
-  return <Membership>{children}</Membership>;
 }
 function Membership({ children }: { children: ReactNode }) {
   const me = useQuery(api.staff.me);
-  if (me === undefined)
-    return <div className="container loading">Checking staff membership…</div>;
   if (!me)
-    return (
-      <div className="container page-body">
-        <div className="page-heading">
-          <h1>Staff access required</h1>
-          <p>
-            Your account is signed in but has no active staff membership. Ask
-            the demonstration administrator to grant access.
-          </p>
-        </div>
-        <UserButton />
-      </div>
-    );
+    return <div className="container loading">Checking staff access…</div>;
   return (
     <div className="container page-body">
       <div className="page-heading admin-top">
@@ -106,7 +53,7 @@ function Membership({ children }: { children: ReactNode }) {
           <h1>Service requests</h1>
           <p className="muted">Hartford 311 · Demonstration workspace</p>
         </div>
-        <UserButton />
+        <a href="/cdn-cgi/access/logout">Sign out</a>
       </div>
       <nav className="admin-nav" aria-label="Staff navigation">
         <Link href="/admin">Report queue</Link>

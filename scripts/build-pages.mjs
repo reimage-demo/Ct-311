@@ -14,7 +14,6 @@ await mkdir(stage, { recursive: true });
 for (const entry of [
   "app",
   "components",
-  "convex",
   "lib",
   "public",
   "package.json",
@@ -24,24 +23,6 @@ for (const entry of [
   await cp(path.join(root, entry), path.join(stage, entry), {
     recursive: true,
   });
-// Pages cannot execute server endpoints or render per-record private routes.
-await rm(path.join(stage, "app/api"), { recursive: true, force: true });
-await rm(path.join(stage, "app/admin/report"), {
-  recursive: true,
-  force: true,
-});
-// Clerk's server actions require a server even when its UI is gated. The static
-// artifact uses the same setup screen without bundling the authentication SDK.
-await writeFile(
-  path.join(stage, "components/staff-provider.tsx"),
-  `
-import type { ReactNode } from "react";
-import { StaffSetup } from "./staff-setup";
-export function StaffProvider(_: { children: ReactNode; serverConfigured: boolean }) {
-  return <StaffSetup />;
-}
-`,
-);
 await symlink(
   path.join(root, "node_modules"),
   path.join(stage, "node_modules"),

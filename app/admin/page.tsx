@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePaginatedQuery, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
+import { usePaginatedQuery, useQuery } from "@/lib/staff-client";
+import { api } from "@/lib/staff-client";
+import type { Id } from "@/lib/models";
 import { services, getService } from "@/lib/services";
 import { statuses, statusLabels, type Status } from "@/lib/domain";
 export default function Queue() {
@@ -112,7 +112,7 @@ export default function Queue() {
             {results.map((r) => (
               <tr key={r._id}>
                 <td>
-                  <Link href={"/admin/report/" + r._id}>
+                  <Link href={"/admin/report?id=" + r._id}>
                     {r.number.slice(0, 13)}…
                   </Link>
                   <small>
@@ -140,7 +140,7 @@ export default function Queue() {
                     "Unassigned"}
                 </td>
                 <td>
-                  <Link href={"/admin/report/" + r._id}>Review →</Link>
+                  <Link href={"/admin/report?id=" + r._id}>Review →</Link>
                 </td>
               </tr>
             ))}
@@ -166,8 +166,10 @@ export default function Queue() {
         </table>
       </div>
       <div className="page-count">
+        <button className="text-button" onClick={() => window.dispatchEvent(new Event("staff-refresh"))}>Refresh queue</button>
         <span className="small muted">
           {results.length} reports loaded · Eastern Time
+          {debounced ? " · Search ordered by newest insertion" : ""}
         </span>
         {status !== "Exhausted" && (
           <button

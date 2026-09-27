@@ -6,36 +6,45 @@
     "dev": "next dev --hostname 127.0.0.1",
     "build": "next build",
     "build:pages": "node scripts/build-pages.mjs",
-    "start": "next start --hostname 127.0.0.1",
+    "start": "wrangler dev",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "convex:dev": "convex dev",
-    "convex:deploy": "convex deploy",
-    "codegen:offline": "node scripts/codegen-offline.cjs",
-    "format": "prettier --write app components convex lib tests scripts load *.ts *.json"
+    "format": "prettier --write app components worker lib tests scripts load *.ts *.json",
+    "worker:dev": "wrangler dev",
+    "worker:check": "wrangler deploy --dry-run",
+    "db:migrate:local": "wrangler d1 migrations apply hartford-311 --local",
+    "db:migrate:remote": "wrangler d1 migrations apply hartford-311 --remote",
+    "deploy:cloudflare": "npm run build && wrangler deploy",
+    "benchmark:local": "node scripts/run-benchmark.mjs"
   },
   "dependencies": {
-    "@clerk/nextjs": "7.9.7",
     "@fontsource/open-sans": "^5.2.7",
-    "convex": "1.46.0",
+    "jose": "^6.2.12",
     "leaflet": "^1.9.4",
     "next": "16.3.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "sharp": "^0.35.4"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
+    "@cloudflare/workers-types": "^5.20260927.1",
     "@playwright/test": "^1.58.0",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^22.19.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
-    "convex-test": "^0.0.41",
+    "esbuild": "^0.28.2",
+    "miniflare": "^5.20260925.0-alpha",
     "prettier": "^3.9.9",
+    "sharp": "^0.35.4",
     "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "wrangler": "^4.141.0"
   },
-  "type": "module"
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  }
 }

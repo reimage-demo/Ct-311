@@ -52,12 +52,7 @@ export async function request<T>(operation: string, body: unknown): Promise<T> {
   if (!res.ok) throw Error(data.error || "REQUEST_FAILED");
   return data;
 }
-export const configured = () =>
-  !!(
-    process.env.NEXT_PUBLIC_CONVEX_URL &&
-    process.env.NEXT_PUBLIC_CONVEX_SITE_URL &&
-    process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY
-  );
+export const configured = () => process.env.NEXT_PUBLIC_BACKEND_ENABLED === "true" && !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 export const randomToken = () =>
   Array.from(crypto.getRandomValues(new Uint8Array(32)), (v) =>
     v.toString(16).padStart(2, "0"),

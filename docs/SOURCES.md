@@ -34,3 +34,16 @@ Important routing: bulky-waste collection must be scheduled by telephone (860-75
 - [Clerk sign-in/MFA configuration](https://clerk.com/docs/guides/configure/auth-strategies/sign-up-sign-in-options).
 
 Spanish copy is implemented throughout the resident experience. Before official launch, have city staff and a qualified Spanish-language reviewer approve service names, emergency guidance, and privacy wording.
+
+
+## Cloudflare rewrite references
+
+- [D1 transactions and batches](https://developers.cloudflare.com/d1/worker-api/d1-database/)
+- [D1 limits](https://developers.cloudflare.com/d1/platform/limits/)
+- [Access JWT verification](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/)
+- [Access independent MFA](https://developers.cloudflare.com/cloudflare-one/access-controls/access-settings/independent-mfa/)
+- [Images binding and local testing](https://developers.cloudflare.com/images/optimization/binding/)
+- [Private R2 object storage](https://developers.cloudflare.com/r2/)
+- [Workers static asset routing](https://developers.cloudflare.com/workers/static-assets/routing/worker-script/)
+
+Earlier Convex references above document the original research; the implemented backend was replaced with Cloudflare at the user's request. No private data from the reference projects was migrated.

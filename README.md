@@ -1,29 +1,40 @@
 # Hartford 311 — city-proposal demonstration
 
-A bilingual public website and private staff workspace built with Next.js 16, TypeScript, Convex, Clerk, Leaflet/Geoapify, and Cloudflare Turnstile. This is **not an official Hartford service**. It does not submit records to Accela or send email/SMS.
+A bilingual Next.js website with a Cloudflare backend: Workers, D1, private R2 photos, Access staff authentication, Turnstile, Durable Object throttling and Images processing. Geoapify is the only separate application API vendor. No city/Accela integration, constituent accounts, email or SMS updates.
 
 **Public preview:** https://reimage-demo.github.io/Ct-311/ · **Staff setup:** https://reimage-demo.github.io/Ct-311/admin/
 
-GitHub Pages serves a credential-free static preview from the `gh-pages` branch. The public pages, bilingual service directory and five-step form work for review; submission, lookup and staff authentication remain unavailable. Server endpoints and private report-detail routes are excluded from that artifact. The full backend remains in `main` for later deployment.
+The GitHub Pages preview remains static and credential-free. It cannot save reports or authenticate staff. The Cloudflare rewrite is implemented locally; cloud resources, Access policies and hosted acceptance testing still require the dedicated account setup below. No live municipal data has been used.
 
-To rebuild the preview, run `npm run build:pages` and publish the contents of `.pages-build/out` (including `.nojekyll`) to `gh-pages`. `PAGES_BASE_PATH` defaults to `/Ct-311`. This isolated build does not modify the full server application or include environment files. GitHub Pages does not apply the server application's security headers.
+## Local development
 
-## Start locally
-
-Requires Node 20.19+ (Node 22 LTS recommended).
+Use Node 22 or newer (Node 24 LTS recommended), then:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Open **http://127.0.0.1:3000**. No keys are required to review the complete public website, bilingual form, service catalog, status-page layout, and staff setup screen. Saving reports, uploading photos, maps, and staff sign-in deliberately remain unavailable until their services are configured. There is no fake persistence or authentication bypass.
+The public site runs at http://127.0.0.1:3000 without keys. For the actual Worker locally:
 
-Routes: `/`, `/services`, `/report`, `/status`, `/contact`, `/privacy`, `/accessibility`, `/admin`, `/admin/report/[id]`, `/admin/team`.
+```sh
+npm run build
+npm run db:migrate:local
+npm run worker:dev
+```
 
-## Connect the real demo backend
+This serves the static Next.js export and same-origin API on localhost:8787. Copy `.dev.vars.example` to `.dev.vars` for Worker settings. Staff endpoints never have a development authentication bypass; tests generate and verify signed fixture JWTs. Copy `.env.example` to `.env.local` for public build settings and rebuild after changes.
 
-Follow [SETUP.md](docs/SETUP.md) in order. Use new dedicated demo accounts/projects and synthetic records. Copy `.env.example` to `.env.local` and keep it out of version control. Frontend keys beginning `NEXT_PUBLIC_` are public by design; all other secrets stay on the server.
+## Architecture
+
+- `worker/index.ts`: same-origin API, response security headers, staff/photo protection.
+- `worker/migrations/0001_initial.sql`: D1 schema, indexes, FTS search, transactional guards and append-only audit triggers.
+- `worker/security.ts`, `rate-gate.ts`: Access signature/issuer/audience validation, fresh membership checks, credential hashing and distributed transactional rate limits.
+- `worker/photos.ts`: bounded input, actual image validation, metadata-free WebP conversion, private R2 delivery and bounded cleanup.
+- `lib/staff-client.ts`: paginated, visibility-aware polling; revoked access clears the staff screen.
+- `lib/services.ts`: researched bilingual 43-service catalog.
+
+The app is statically rendered; Cloudflare Workers runs the server APIs. No Next.js runtime adapter, Convex, Clerk or Vercel account is required. Git history preserves the previous implementation.
 
 ## Verification
 
@@ -31,23 +42,24 @@ Follow [SETUP.md](docs/SETUP.md) in order. Use new dedicated demo accounts/proje
 npm run typecheck
 npm test
 npm run build
-npm run test:e2e
+npm run worker:check
+npm run benchmark:local
 npm audit
 ```
 
-The browser suite uses Playwright and axe and requires installed Playwright browsers (`npx playwright install chromium webkit`). The mobile project uses WebKit. Backend tests use `convex-test` and Sharp; they do not provision or alter a cloud database. See [VALIDATION.md](docs/VALIDATION.md) for what was actually executed and remaining checks.
+Tests use local Cloudflare D1, R2, Images and Durable Object bindings through Miniflare. External identity/challenge responses are controlled fixtures. `worker:check` packages the Worker without deployment. `benchmark:local` creates an ephemeral 100,000-report database, performs concurrent queries/submissions, records JSON under ignored `load/results`, and disposes the local database.
 
-Convex's installed code generator produced the local schema/server bindings. `npm run codegen:offline` regenerates typed function references without a deployment using the installed Convex generator. Run `npx convex dev` after setup to regenerate official deployment bindings and validate the deployed backend.
+The prepared browser suite uses Playwright/axe (`npm run test:e2e`) and requires browser installation. See [validation](docs/VALIDATION.md) for actual executed results and outstanding tests.
+
+## GitHub Pages preview
+
+Run `npm run build:pages` and publish `.pages-build/out`, including `.nojekyll`, to `gh-pages`. The isolated build strips all public API keys and copies no environment files. GitHub Pages does not execute the Worker or apply the Cloudflare headers configuration. It is a visual/workflow preview only. Keep Pages configured to `gh-pages`, not `main`.
 
 ## Handoff
 
-- [API accounts, monthly costs and proposed pricing](docs/COSTS.md)
-- [Setup and service configuration](docs/SETUP.md)
+- [Cloudflare setup and deployment](docs/SETUP.md)
+- [Security, capacity, backup and monitoring](docs/OPERATIONS.md)
 - [Staff walkthrough](docs/STAFF.md)
-- [Security, retention, backup, and capacity operations](docs/OPERATIONS.md)
-- [Service research and reference inventory](docs/SOURCES.md)
-- [Validation and remaining external checks](docs/VALIDATION.md)
-
-Public copy and the full 43-service bilingual catalog live in `lib/services.ts`. Shared validators, status labels, transition rules, and public projection live in `lib/domain.ts`. Convex enforces authorization independently of the Next.js UI.
-
-Only the static preview is deployed; nothing is connected to a city system. Removing the demonstration notices is not sufficient to launch an official service; city integration, identity, retention, operational ownership, and incident response must first be agreed.
+- [Service-source inventory](docs/SOURCES.md)
+- [Validation and test limitations](docs/VALIDATION.md)
+- [Consolidated service costs](docs/COSTS.md)

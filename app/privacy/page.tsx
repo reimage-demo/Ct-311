@@ -22,8 +22,8 @@ export default function Privacy() {
           <h2>{t("Information stored", "Información almacenada")}</h2>
           <p>
             {t(
-              "A report contains the issue, location, optional photos, your test name, and contact details. Authorized demonstration staff can review these records. Reports are stored in Convex; staff sign-in is handled by Clerk. Reports are not sent to the City of Hartford.",
-              "Un reporte contiene el problema, la ubicación, fotos opcionales, nombre de prueba y datos de contacto. El personal autorizado puede revisar estos registros. Convex almacena los reportes y Clerk gestiona el acceso del personal. No se envían reportes a la Ciudad de Hartford.",
+              "A report contains the issue, location, optional photos, your test name, and contact details. Authorized demonstration staff can review these records. Reports and photos are stored on Cloudflare; staff sign-in is protected by Cloudflare Access. Reports are not sent to the City of Hartford.",
+              "Un reporte contiene el problema, la ubicación, fotos opcionales, nombre de prueba y datos de contacto. El personal autorizado puede revisar estos registros. Cloudflare almacena los reportes y las fotos; Cloudflare Access protege el acceso del personal. No se envían reportes a la Ciudad de Hartford.",
             )}
           </p>
           <h2>

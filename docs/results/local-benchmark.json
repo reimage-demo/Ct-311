@@ -1,0 +1,86 @@
+{
+  "kind": "LOCAL DATA-LAYER BENCHMARK — NOT HOSTED ACCEPTANCE",
+  "at": "2026-09-27T03:15:15.386Z",
+  "seedCount": 100000,
+  "totalMs": 28112,
+  "concurrency": 25,
+  "failures": 0,
+  "receiptMismatches": 0,
+  "finalReportCount": 100100,
+  "metrics": {
+    "queue": {
+      "samples": 100,
+      "p95Ms": 248,
+      "maxMs": 272
+    },
+    "statusFilter": {
+      "samples": 100,
+      "p95Ms": 247,
+      "maxMs": 280
+    },
+    "serviceFilter": {
+      "samples": 100,
+      "p95Ms": 235,
+      "maxMs": 270
+    },
+    "search": {
+      "samples": 100,
+      "p95Ms": 226,
+      "maxMs": 259
+    },
+    "lookup": {
+      "samples": 100,
+      "p95Ms": 218,
+      "maxMs": 250
+    },
+    "finalize": {
+      "samples": 100,
+      "p95Ms": 1626,
+      "maxMs": 1729
+    }
+  },
+  "plans": {
+    "queue": {
+      "success": true,
+      "meta": {
+        "served_by": "miniflare.db",
+        "duration": 0,
+        "changes": 0,
+        "last_row_id": 100100,
+        "changed_db": false,
+        "size_after": 168857600,
+        "rows_read": 0,
+        "rows_written": 0
+      },
+      "results": [
+        {
+          "id": 4,
+          "parent": 0,
+          "notused": 209,
+          "detail": "SCAN reports USING COVERING INDEX reports_created"
+        }
+      ]
+    },
+    "status": {
+      "success": true,
+      "meta": {
+        "served_by": "miniflare.db",
+        "duration": 1,
+        "changes": 0,
+        "last_row_id": 100100,
+        "changed_db": false,
+        "size_after": 168857600,
+        "rows_read": 0,
+        "rows_written": 0
+      },
+      "results": [
+        {
+          "id": 4,
+          "parent": 0,
+          "notused": 54,
+          "detail": "SEARCH reports USING COVERING INDEX reports_status (status=?)"
+        }
+      ]
+    }
+  }
+}

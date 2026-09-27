@@ -1,0 +1,7 @@
+# Local Worker settings only. Copy to ignored .dev.vars.
+APP_ORIGIN=http://localhost:8787
+ACCESS_TEAM_DOMAIN=https://your-team.cloudflareaccess.com
+ACCESS_AUD=
+IP_HASH_SECRET=
+TURNSTILE_SECRET_KEY=
+GEOAPIFY_API_KEY=

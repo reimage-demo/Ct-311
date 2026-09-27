@@ -1,21 +1,27 @@
 "use client";
-import { use, useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { useMutation, usePaginatedQuery, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import type { Id, Doc } from "@/convex/_generated/dataModel";
+import { useMutation, usePaginatedQuery, useQuery } from "@/lib/staff-client";
+import { api } from "@/lib/staff-client";
+import type { Id, Doc } from "@/lib/models";
 import { getService } from "@/lib/services";
 import { statusLabels, transitions, type Status } from "@/lib/domain";
 import { errorMessage } from "@/lib/client";
 const Map = dynamic(() => import("@/components/location-map"), { ssr: false });
-export default function ReportDetail({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
-  return <Report id={id as Id<"reports">} />;
+export default function ReportDetail() {
+  return (
+    <Suspense fallback={<p>Loading report…</p>}>
+      <SelectedReport />
+    </Suspense>
+  );
+}
+function SelectedReport() {
+  const id = useSearchParams().get("id");
+  if (!id || !/^([a-f0-9]{32})$/.test(id))
+    return <p>Select a report from the queue.</p>;
+  return <Report id={id} />;
 }
 function Report({ id }: { id: Id<"reports"> }) {
   const data = useQuery(api.staff.detail, { id });
@@ -150,6 +156,7 @@ function UpdateForm({
   members: Doc<"staff">[];
 }) {
   const update = useMutation(api.staff.update);
+  const me = useQuery(api.staff.me);
   const [version, setVersion] = useState(r.version),
     [status, setStatus] = useState<Status>(r.status),
     [assignee, setAssignee] = useState(r.assignee || ""),
@@ -222,6 +229,7 @@ function UpdateForm({
           <label htmlFor="assignee">Assigned to</label>
           <select
             id="assignee"
+            disabled={me?.role !== "admin"}
             value={assignee}
             onChange={(e) => setAssignee(e.target.value)}
           >

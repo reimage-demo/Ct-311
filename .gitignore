@@ -9,3 +9,8 @@ coverage/
 .vercel/
 load/results/
 .pages-build/
+out/
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+*.sql.backup
